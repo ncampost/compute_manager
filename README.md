@@ -34,6 +34,8 @@ When you're done, you can delete your instance with `compute_manager delete <ins
 * `create`
 * `delete`
 
+WIP on startup scripts and the like.
+
 ### GCP Compute Engine: Instance groups
 
 `<WIP>`
