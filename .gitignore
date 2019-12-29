@@ -1,0 +1,7 @@
+# Stuff that setup.py creates, and venvs
+*.egg-info/
+*build/
+*dist/
+*venv/
+*__pycache__/
+
