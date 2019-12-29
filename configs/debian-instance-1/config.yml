@@ -1,0 +1,3 @@
+instance_project: debian-cloud
+instance_family: debian-10
+machine_type: f1-micro
