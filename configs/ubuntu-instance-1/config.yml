@@ -1,0 +1,3 @@
+instance_project: ubuntu-os-cloud
+instance_family: ubuntu-1804-lts
+machine_type: f1-micro
