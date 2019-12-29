@@ -26,7 +26,7 @@ Then issue `compute_manager create <new_instance_name> --project <YOUR_GCP_PROJE
 
 You can start with a yaml file already provided with `compute_manager create ubuntu-instance-1`.
 
-When you're done, you can delete your instance with `compute_manager delete <instance_name>`s
+When you're done, you can delete your instance with `compute_manager delete <instance_name>`
 
 ## supports
 
