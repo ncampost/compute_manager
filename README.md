@@ -20,7 +20,9 @@ For a new instance, create a new yaml file at `configs/<new_instance_name>/confi
 * `instance_family`
 * `machine_type`
 
-Then issue `compute_manager create <new_instance_name>`. You should have a shiny new instance booting in GCP Compute.
+Then issue `compute_manager create <new_instance_name> --project <YOUR_GCP_PROJECT_ID> --zone <YOUR_GCP_ZONE>`. You should have a shiny new instance booting in GCP Compute.
+
+(If you don't want to provide `--project` and `--zone`, put them in `/prod.env`. The tool picks up from this envfile as defaults. Following commands will assume this was done.)
 
 You can start with a yaml file already provided with `compute_manager create ubuntu-instance-1`.
 
