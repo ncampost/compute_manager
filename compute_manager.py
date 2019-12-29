@@ -1,11 +1,12 @@
 import logging
+import time
 
 import click
 from environs import Env
 import googleapiclient.discovery
 import yaml
 
-log = logging.getLogger('test')
+log = logging.getLogger('compute_manager')
 
 _ENVFILE_NAME = 'prod.env'
 
@@ -136,12 +137,17 @@ def create(instance_name, project, zone):
         'project' (string): GCP Project ID
         'zone' (string): GCP Zone
     '''
+    compute_resource = ComputeResource(instance_name, project, zone)
+
     log.info(f'Issuing create command for instance `{instance_name}` in zone {zone} and project {project}...')
     gcp_compute_client = init_gcp_compute_client()
 
-    compute_resource = ComputeResource(instance_name, project, zone)
+    create_operation = compute_resource.create(gcp_compute_client)
 
-    return compute_resource.create(gcp_compute_client)
+    # Block until operation completes.
+    wait_for_operation(gcp_compute_client, project, zone, create_operation['name'])
+
+    log.info('Instance created successfully!')
 
 
 @compute_manager.command(help='Delete the instance referred to by `instance_name`.')
@@ -161,8 +167,33 @@ def delete(instance_name, project, zone):
         'project' (string): GCP Project ID
         'zone' (string): GCP Zone
     '''
-    gcp_compute_client = init_gcp_compute_client()
-
     compute_resource = ComputeResource(instance_name, project, zone)
 
-    return compute_resource.delete(gcp_compute_client)
+    log.info(f'Issuing delete command for instance `{instance_name}` in zone {zone} and project {project}...')
+    gcp_compute_client = init_gcp_compute_client()
+
+    delete_operation = compute_resource.delete(gcp_compute_client)
+
+    # Block until operation completes.
+    wait_for_operation(gcp_compute_client, project, zone, delete_operation['name'])
+
+    log.info('Instance deleted successfully!')
+
+
+def wait_for_operation(gcp_compute_client, project, zone, operation):
+    '''
+    Polls the API until operation status is DONE.
+    '''
+    while True:
+        result = gcp_compute_client.zoneOperations().get(
+            project=project,
+            zone=zone,
+            operation=operation).execute()
+
+        if result['status'] == 'DONE':
+            print("done.")
+            if 'error' in result:
+                raise Exception(result['error'])
+            return result
+
+        time.sleep(1)

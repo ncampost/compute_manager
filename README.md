@@ -1,6 +1,6 @@
 # compute_manager: CLI, manages GCP Compute instances
 
-Playing around with GCP, this tool issues management commands for instances using the information provided in `configs/`.
+Playing around with GCP, this tool issues management commands for instances using the information provided in `configs/`. Lots of code samples taken from the [GCP Python client docs](https://cloud.google.com/compute/docs/tutorials/python-guide).
 
 ## getting started
 
