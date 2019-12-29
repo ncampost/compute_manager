@@ -119,7 +119,7 @@ def compute_manager():
     init_logging(log)
 
 
-@compute_manager.command()
+@compute_manager.command(help='Create the instance referred to by `instance_name`.')
 @click.argument('instance_name')
 @click.option('--project', default=_GCP_PROJECT_ENVVAR, help='GCP Project ID')
 @click.option('--zone', default=_GCP_ZONE_ENVVAR, help='GCP Zone')
@@ -144,7 +144,7 @@ def create(instance_name, project, zone):
     return compute_resource.create(gcp_compute_client)
 
 
-@compute_manager.command()
+@compute_manager.command(help='Delete the instance referred to by `instance_name`.')
 @click.argument('instance_name')
 @click.option('--project', default=_GCP_PROJECT_ENVVAR, help='GCP Project ID')
 @click.option('--zone', default=_GCP_ZONE_ENVVAR, help='GCP Zone')
