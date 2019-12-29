@@ -1,9 +1,11 @@
+from http import HTTPStatus
 import logging
 import time
 
 import click
 from environs import Env
 import googleapiclient.discovery
+from googleapiclient.errors import HttpError
 import yaml
 
 log = logging.getLogger('compute_manager')
@@ -48,7 +50,7 @@ class ComputeResource():
 
     def create(self, gcp_compute_client):
         '''
-        Create the instance.
+        Issue create command for the instance.
         '''
         image_response = gcp_compute_client.images().getFromFamily(
             project=self.instance_project,
@@ -95,7 +97,7 @@ class ComputeResource():
 
     def delete(self, gcp_compute_client):
         '''
-        Delete the instance.
+        Issue delete command for the instance.
         '''
         return gcp_compute_client.instances().delete(
             project=self.project,
@@ -128,6 +130,8 @@ def create(instance_name, project, zone):
     '''
     Create the instance.
 
+    Implementation assumes that the API will do the right thing if called on an already-existing instance, etc...
+
     Positional arguments:
         'instance_name' (string): Name of the Compute Engine instance
 
@@ -142,7 +146,16 @@ def create(instance_name, project, zone):
     log.info(f'Issuing create command for instance `{instance_name}` in zone {zone} and project {project}...')
     gcp_compute_client = init_gcp_compute_client()
 
-    create_operation = compute_resource.create(gcp_compute_client)
+    try:
+        create_operation = compute_resource.create(gcp_compute_client)
+
+    except HttpError as e:
+        if e.resp.status == HTTPStatus.CONFLICT:
+            log.info(f'Instance {instance_name} already exists. Exiting...')
+            return
+
+        # Some unexpected code
+        raise
 
     # Block until operation completes.
     wait_for_operation(gcp_compute_client, project, zone, create_operation['name'])
@@ -158,6 +171,8 @@ def delete(instance_name, project, zone):
     '''
     Delete the instance.
 
+    Implementation assumes that the API will do the right thing if called on an already-deleted instance, etc...
+
     Positional arguments:
         'instance_name' (string): Name of the Compute Engine instance
 
@@ -172,7 +187,16 @@ def delete(instance_name, project, zone):
     log.info(f'Issuing delete command for instance `{instance_name}` in zone {zone} and project {project}...')
     gcp_compute_client = init_gcp_compute_client()
 
-    delete_operation = compute_resource.delete(gcp_compute_client)
+    try:
+        delete_operation = compute_resource.delete(gcp_compute_client)
+
+    except HttpError as e:
+        if e.resp.status == HTTPStatus.NOT_FOUND:
+            log.info(f'Instance {instance_name} doesn\'t exist. Exiting...')
+            return
+
+        # Some unexpected code
+        raise
 
     # Block until operation completes.
     wait_for_operation(gcp_compute_client, project, zone, delete_operation['name'])
